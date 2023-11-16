@@ -1,7 +1,7 @@
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class StudentClient {
+public class StudentClient extends FileOperations {
     ObjectInputStream br;
     ObjectOutputStream os;
     public StudentClient(ObjectInputStream br,ObjectOutputStream  os){
