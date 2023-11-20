@@ -19,4 +19,5 @@ public class User
         this.password = password ;
         this.isAdmin = isAdmin.equals("t")?true:false ;
     }
+    
 }

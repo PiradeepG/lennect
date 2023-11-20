@@ -9,21 +9,26 @@ public class Client {
     private String password;
     private char status;
     private String subject;
-    private BufferedReader systbufReader;
+    private static BufferedReader systbufReader;
     private Socket sc;
-    private Scanner scanner;
-
-    public Client() {
+    private  static Scanner scanner;
+    ObjectOutputStream os;
+    ObjectInputStream br;
+    Console console;
+    public Client(){
+        console= System.console();
         scanner = new Scanner(System.in);
         systbufReader = new BufferedReader(new InputStreamReader(System.in));
         setUserName();
         connect();
     }
 
-    public void connect() {
+    public void connect(){
         try {
-            sc = new Socket("10.52.0.162", 1234);
-            start(sc);
+            sc = new Socket("10.52.0.112", 4321);
+            br = new ObjectInputStream(sc.getInputStream());
+            os = new ObjectOutputStream(sc.getOutputStream());
+            start();
         } catch (IOException e) {
             System.err.println("Error in connecting to the server: " + e.getMessage());
         }
@@ -39,7 +44,7 @@ public class Client {
         }
     }
 
-    public String getInput() {
+    public static String getInput() {
         try {
             return systbufReader.readLine();
         } catch (IOException e) {
@@ -48,7 +53,7 @@ public class Client {
         }
     }
 
-    public int getChoice() {
+    public static int getChoice() {
         int num = 0;
         boolean validInput = false;
 
@@ -65,9 +70,8 @@ public class Client {
         return num;
     }
 
-    public void start(Socket obj) {
-        try (ObjectInputStream br = new ObjectInputStream(obj.getInputStream());
-             ObjectOutputStream os = new ObjectOutputStream(obj.getOutputStream())) {
+    public void start(){
+         try{
 
             System.out.println("What do you wish to do?\n1-SIGNUP\n2-LOGIN\n3-EXIT");
             int choice = getChoice();
@@ -104,8 +108,15 @@ public class Client {
                 }
             }
                 getDetailsFromUser();
-                os.writeObject(userName + "¬" + email + "¬" + password + "¬" + status + "¬" + subject);
-                break;
+                password=PasswordChecker.validatePassword(password);
+                if(status=='t'){
+                    os.writeObject(userName + "¬" + email + "¬" + password + "¬" + status + "¬" + subject);
+                    break;
+                }
+                else{
+                    os.writeObject(userName + "¬" + email + "¬" + password + "¬" + status);
+                    break;
+                }
             }
              else if (choice == 2) {
                 os.writeObject(choice + "");
@@ -114,7 +125,10 @@ public class Client {
 
                 if (loginChoice == 2) {
                     getDetailsFromUser();
-                    os.writeObject(userName + "¬" + email + "¬" + password);
+                    os.writeObject(userName + "¬"+ password);
+                }
+                else if(loginChoice==1){
+                    os.writeObject(userName);
                 }
                 break;
             } 
@@ -131,25 +145,46 @@ public class Client {
             while ((line = (String) br.readObject()) != null) {
                 System.out.println(line);
                 if (line.equals("e2")) {
-                    System.out.println("Invalid username and password");
-                    getDetailsFromUser();
-                    os.writeObject(userName + "¬" + email + "¬" + password);
+                    System.out.println("Invalid user");
+                    start();
                 } 
                 else if (line.equals("e1")) {
                     System.out.println("Sorry wrong password");
-                    getPasswordFromUser();
-                    os.writeObject(userName + "¬" + email + "¬" + password);
+                    System.out.println("Do you want to continue?\n1-Yes\n2-Goback");
+                    int backChoice=getChoice();
+                    while(true){
+                        if(backChoice==1){
+                            System.out.println("Here in choice 1");
+                            os.writeObject("go");
+                            getPasswordFromUser();
+                            os.writeObject(userName + "¬" + email + "¬" + password);
+                            break;
+                        }
+                        else if(backChoice==2){
+                            os.writeObject("exit");
+                            start();
+                        }
+                        else{
+                            System.out.println("Invalid input");
+                            backChoice=getChoice();
+                        }
+                    }
+                }
+                else if(line.equals("e0")){
+                    System.out.println("Username already exist's");
+                    start();
                 }
                 else if(line.equals("t")){
-                    new TeacherClient(br, os);
+                    new TeacherClient(br, os,userName);
                 }
                 else if(line.equals("s")){
                     new StudentClient(br, os);
                 }
             }
-        } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error in client I/O: " + e.getMessage());
-        }
+         }
+         catch(Exception e){
+            System.out.println("error");
+         } 
     }
 
     public void getDetailsFromUser() {
@@ -159,11 +194,10 @@ public class Client {
     }
 
     public void getPasswordFromUser() {
-        System.out.print("Enter your password: ");
-        password = getInput();
+        password = new String(console.readPassword("Enter your password\n"));
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
         Client cl = new Client();
     }
 }

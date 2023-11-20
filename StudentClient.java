@@ -7,5 +7,6 @@ public class StudentClient extends FileOperations {
     public StudentClient(ObjectInputStream br,ObjectOutputStream  os){
         this.br=br;
         this.os=os;
+        System.out.println("In student client");
     }
 }
