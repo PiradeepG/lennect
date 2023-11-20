@@ -13,6 +13,6 @@ public class TeacherHandler
     }  
     public void Start()
     {
-        System.out.println("Hello "+teacher.getUserName());
+        System.out.println("Hello "+teacher.name);
     } 
 }

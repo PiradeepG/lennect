@@ -15,7 +15,7 @@ public class StudentHandler {
     }  
     public void Start()
     {
-        System.out.println("Hello "+student.getUserName());
+        System.out.println("Hello "+student.name);
 
     } 
     

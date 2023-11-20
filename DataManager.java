@@ -22,13 +22,13 @@ public class DataManager
                 System.out.println(" length == "+splitter.length);
                 if(splitter.length==5)
                 {
-                    Teacher teacher = new Teacher(splitter[0],splitter[1], splitter[2], splitter[3].equals("t"));
+                    Teacher teacher = new Teacher(splitter[0],splitter[1], splitter[2], splitter[3]);
                     teacher.subject = splitter[4];
                     arr.add(teacher);
                 }
                 else
                 {
-                    Student student = new Student(splitter[0],splitter[1], splitter[2], splitter[3].equals("t"));
+                    Student student = new Student(splitter[0],splitter[1], splitter[2], splitter[3]);
                     arr.add(student);
                 }
                 System.out.println("added user ");
@@ -48,10 +48,10 @@ public class DataManager
         System.out.println("checkin as a valid user");
         for (User user : arr) 
         {
-            System.out.println("user name" +user.getUserName());
-            if(user.getUserName().equals(userName))
+            System.out.println("user name" +user.name);
+            if(user.name.equals(userName))
             {
-                if(user.getPassword().equals(password))
+                if(user.password.equals(password))
                 {
                     System.out.println("user name and password is correct");
                     return i;

@@ -65,18 +65,18 @@ class ClientHandler implements Runnable
         {
             currentUser = dataManager.arr.get(loginResponse);
            
-            if(currentUser.isAdmin())
-            { 
-                pr.writeObject("student");
-                Teacher teacher = (Teacher)(currentUser);
-                teacher.start();   
-            }
-            else
-            {
-                pr.writeObject("teacher:");
-                Student student = (Student)(currentUser); 
-                student.start();
-            }
+            // if(currentUser.isAdmin())
+            // { 
+            //     pr.writeObject("student");
+            //     Teacher teacher = (Teacher)(currentUser);
+            //     teacher.start();   
+            // }
+            // else
+            // {
+            //     pr.writeObject("teacher:");
+            //     Student student = (Student)(currentUser); 
+            //     student.start();
+            // }
         }
         else
         {
@@ -101,7 +101,7 @@ class ClientHandler implements Runnable
             if(splitter.length > 4) // TEACHER IS TRYING TO SINGUP 
             {
                 System.out.println("TEACHER IS TRYING TO SINGUP ");
-                Teacher teacher = new Teacher(splitter[0],splitter[1], splitter[2], splitter[3].equals("t"));
+                Teacher teacher = new Teacher(splitter[0],splitter[1], splitter[2], splitter[3]);
                 teacher.subject = splitter[4];
                 dataManager.arr.add(teacher);
                 TeacherHandler obj = new TeacherHandler(socket, dataManager , teacher);
@@ -111,7 +111,7 @@ class ClientHandler implements Runnable
             else //  STUDENT IS TRYING TO SIGNUP 
             {
                 System.out.println("CHILDREN IS TRYING TO SIGNUP ");
-                Student student = new Student(splitter[0],splitter[1], splitter[2], splitter[3].equals("t"));
+                Student student = new Student(splitter[0],splitter[1], splitter[2], splitter[3]);
                 dataManager.arr.add(student);
                 StudentHandler obj = new StudentHandler(socket, dataManager , student);
                 obj.Start();
