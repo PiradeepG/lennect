@@ -32,6 +32,11 @@ class ClientHandler implements Runnable
     }   
     public void run()
     {
+        start();
+    }
+    public void start()
+    {
+        System.out.println("enter start");
         try 
         {
            
@@ -50,37 +55,73 @@ class ClientHandler implements Runnable
         } 
         catch (Exception e) 
         {
-           
+           System.out.println(e);
         }
     }
     public void logIn(String authString) throws Exception 
     {
-        int loginResponse = dataManager.isValidUser(authString.split("¬")[0], authString.split("¬")[1]);
-        if(loginResponse == -4)
+        if(authString.split("¬").length == 1)
         {
-            pr.writeObject("e1");// e1 -- > PASSWORD IS WRONG 
-            
-        }
-        else if(loginResponse > 0)
-        {
-            currentUser = dataManager.arr.get(loginResponse);
-           
-            if(currentUser.isAdmin())
-            { 
-                pr.writeObject("student");
-                Teacher teacher = (Teacher)(currentUser);
-                teacher.start();   
+            int response = dataManager.isValidUser(authString) ;
+            if(response >= 0)
+            {
+                User user = dataManager.arr.get(response);
+                if(user.isAdmin)
+                {
+                    pr.writeObject("s");
+                    TeacherHandler teacherHandler = new TeacherHandler(br, pr, dataManager , (Teacher)currentUser);
+                    teacherHandler.Start();
+                }
+                else
+                {
+                    pr.writeObject("t");
+                    StudentHandler studentHandler = new StudentHandler(br, pr, dataManager , (Student)currentUser);
+                    studentHandler.Start();
+                }
             }
             else
             {
-                pr.writeObject("teacher:");
-                Student student = (Student)(currentUser); 
-                student.start();
+                pr.writeObject("e4");
+                start();
             }
         }
-        else
+        while (true)
         {
-            pr.writeObject("e2"); //  E3  -- > NO SUCH USER IS FOUND 
+            int loginResponse = dataManager.isValidUser(authString.split("¬")[0], authString.split("¬")[1]);
+            System.out.println("login response " + loginResponse);
+            if(loginResponse == -4)
+            {
+                pr.writeObject("e1");// e1 -- > PASSWORD IS WRONG 
+                String userResponse = (String)br.readObject();
+                if(userResponse.equals("go"))
+                {
+                    authString = (String)br.readObject();
+                }
+                else
+                {
+                    start();
+                }
+            }
+            else if(loginResponse >= 0)
+            {
+                currentUser = dataManager.arr.get(loginResponse);
+                if(currentUser.isAdmin)
+                { 
+                    pr.writeObject("s");
+                    TeacherHandler teacherHandler = new TeacherHandler(br, pr, dataManager , (Teacher)currentUser);
+                    teacherHandler.Start();
+                }
+                else
+                {
+                    pr.writeObject("t");
+                    StudentHandler studentHandler = new StudentHandler(br, pr, dataManager , (Student)currentUser);
+                    studentHandler.Start();
+                }
+            }
+            else
+            {
+                pr.writeObject("e2"); //  E3  -- > NO SUCH USER IS FOUND 
+            }
         }
     }
     public void signUp(String authString)throws Exception
@@ -90,36 +131,37 @@ class ClientHandler implements Runnable
         System.out.println(Arrays.toString(splitter));
         System.out.println(splitter[0]+"   "+splitter[1]);
         System.out.println(splitter[0] + splitter[1]);
-        int loginResponse = dataManager.isValidUser(splitter[0], splitter[1]);
+        int loginResponse = dataManager.isValidUser(splitter[0]);
         System.out.println("Login response "+loginResponse);
         System.out.println("end of sign up");
-        
+        String newUser = "" ;
         if(loginResponse == -1)
         {
-            pr.writeObject("go");
             System.out.println("the user can be added");
             if(splitter.length > 4) // TEACHER IS TRYING TO SINGUP 
             {
                 System.out.println("TEACHER IS TRYING TO SINGUP ");
-                Teacher teacher = new Teacher(splitter[0],splitter[1], splitter[2], splitter[3].equals("t"));
+                Teacher teacher = new Teacher(splitter[0],splitter[1], splitter[2], splitter[3]);
+                dataManager.addUser(splitter[0]+"¬"+splitter[2]+"¬"+splitter[1]+"¬"+splitter[3]+"¬"+splitter[4]);
                 teacher.subject = splitter[4];
                 dataManager.arr.add(teacher);
-                TeacherHandler obj = new TeacherHandler(socket, dataManager , teacher);
-                pr.writeObject("go");
+                TeacherHandler obj = new TeacherHandler(br, pr, dataManager , teacher);
                 obj.Start();
             }
-            else //  STUDENT IS TRYING TO SIGNUP 
+            else 
             {
                 System.out.println("CHILDREN IS TRYING TO SIGNUP ");
-                Student student = new Student(splitter[0],splitter[1], splitter[2], splitter[3].equals("t"));
+                Student student = new Student(splitter[0],splitter[1], splitter[2], splitter[3]);
                 dataManager.arr.add(student);
-                StudentHandler obj = new StudentHandler(socket, dataManager , student);
+                dataManager.addUser(splitter[0]+"¬"+splitter[2]+"¬"+splitter[1]+"¬"+splitter[3]);
+                StudentHandler obj = new StudentHandler(br, pr, dataManager , student);
                 obj.Start();
             }
         }
         else
         {
             pr.writeObject("e0");
+            start();
         }
     }
 }
