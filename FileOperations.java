@@ -17,7 +17,6 @@ public class FileOperations {
         return new FileData(new File(path).getName(), baos.toByteArray());
         }
         catch(Exception e){
-            System.out.println(e+"Error in copying file");
         }
         return null;
     }

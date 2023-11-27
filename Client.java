@@ -25,7 +25,7 @@ public class Client {
 
     public void connect(){
         try {
-            sc = new Socket("10.52.0.112", 4321);
+            sc = new Socket("192.168.192.84", 4321);
             br = new ObjectInputStream(sc.getInputStream());
             os = new ObjectOutputStream(sc.getOutputStream());
             start();
