@@ -20,8 +20,5 @@ public class FileOperations {
         }
         return null;
     }
-    public static void main(String[] args) {
-        FileOperations fp=new FileOperations();
-        System.out.println(fp.getFileObject("/home/piradeep/Checking1"));
-    }
+
 }

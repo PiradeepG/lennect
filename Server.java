@@ -18,7 +18,6 @@ public class Server
             serversocket = new ServerSocket(4321);
             dataManager  = new DataManager() ; 
             System.out.println("hello");
-            System.out.println("hello");
         } 
         catch (Exception e) {
             System.out.println(e);
